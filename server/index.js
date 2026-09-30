@@ -201,7 +201,7 @@ function handleMessage(client, msg) {
       return;
 
     case C2S.HOST_KB_SET_REFERENCE:
-      if (isHost) room.kbSetReference(payload.reference);
+      if (isHost) room.kbSetReference(payload.teamId, payload.reference);
       return;
     case C2S.HOST_KB_START:
       if (isHost) room.kbStart();

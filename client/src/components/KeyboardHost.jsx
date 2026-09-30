@@ -24,7 +24,6 @@ function DiffView({ ops }) {
               {o.sub}
             </span>
           );
-        // del — пропущене слово
         return (
           <span key={i} className="w w-miss" title="пропущене слово">
             {o.ref}
@@ -35,50 +34,62 @@ function DiffView({ ops }) {
   );
 }
 
-// Панель ведучого для Keyboard Battle.
+// Панель ведучого для Keyboard Battle. Еталон — свій на кожну команду.
 export default function KeyboardHost({ state, send, cfg }) {
   const kb = state.keyboard || {};
   const teams = state.teams || [];
-  const [ref, setRef] = useState(kb.reference || '');
+  const references = kb.references || {};
   const penalty = cfg?.keyboardErrorPenalty ?? 3;
   const ranking = kb.ranking || [];
+
+  const [refs, setRefs] = useState(() => {
+    const init = {};
+    teams.forEach((t) => (init[t.id] = references[t.id] || ''));
+    return init;
+  });
+  const setRef = (id, v) => setRefs((p) => ({ ...p, [id]: v }));
+  const saveRef = (id) => send('host_kb_set_reference', { teamId: id, reference: refs[id] ?? '' });
 
   const finalTime = (sub) => sub.elapsedMs / 1000 + (sub.finalErrors || 0) * penalty;
   const placeOf = (teamId) => {
     const i = ranking.indexOf(teamId);
     return i >= 0 ? i + 1 : null;
   };
-  const setErrors = (teamId, v) =>
-    send('host_kb_correct', { teamId, errors: Math.max(0, v) });
+  const setErrors = (teamId, v) => send('host_kb_correct', { teamId, errors: Math.max(0, v) });
 
   return (
     <div style={{ display: 'grid', gap: 12 }}>
-      {/* ── Налаштування раунду ── */}
-      <div className="card" style={{ display: 'grid', gap: 10 }}>
-        <span className="label">Еталонний текст (те, що має вийти)</span>
-        <textarea
-          rows={2}
-          value={ref}
-          onChange={(e) => setRef(e.target.value)}
-          placeholder="Введи текст, який команди друкуватимуть…"
-        />
-        <div className="row">
-          <button onClick={() => send('host_kb_set_reference', { reference: ref })}>
-            Зберегти еталон
-          </button>
-          <span className="pill">штраф: {penalty}с / помилку</span>
-          <span className="pill">1 слово = максимум 1 помилка</span>
-          <div style={{ flex: 1 }} />
-          <button className="primary" onClick={() => send('host_kb_start')}>
-            <Icon name="play" size={16} /> Старт раунду
-          </button>
-          <button className="danger" onClick={() => send('host_kb_reset')}>
-            Скинути
-          </button>
+      {/* ── Налаштування раунду: еталон на кожну команду ── */}
+      <div className="card" style={{ display: 'grid', gap: 12 }}>
+        <div className="row" style={{ justifyContent: 'space-between' }}>
+          <span className="label">Еталонні тексти — свій на кожну команду</span>
+          <div className="row">
+            <span className="pill">штраф {penalty}с/помилку</span>
+            <button className="primary" onClick={() => send('host_kb_start')}>
+              <Icon name="play" size={16} /> Старт раунду
+            </button>
+            <button className="danger" onClick={() => send('host_kb_reset')}>
+              Скинути
+            </button>
+          </div>
+        </div>
+        <div style={{ display: 'grid', gap: 10 }}>
+          {teams.map((t) => (
+            <div key={t.id} className={`team-${t.os}`} style={{ display: 'grid', gap: 5 }}>
+              <span className="label" style={{ color: 'var(--team)' }}>{t.name}</span>
+              <textarea
+                rows={2}
+                value={refs[t.id] ?? ''}
+                placeholder={`Еталон для «${t.name}»…`}
+                onChange={(e) => setRef(t.id, e.target.value)}
+                onBlur={() => saveRef(t.id)}
+              />
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* ── Команди ── */}
+      {/* ── Результати команд ── */}
       <div style={{ display: 'grid', gap: 10 }}>
         {teams.map((t) => {
           const sub = (kb.submissions || []).find((s) => s.teamId === t.id) || {};
@@ -106,6 +117,9 @@ export default function KeyboardHost({ state, send, cfg }) {
               {sub.submitted && (
                 <>
                   <DiffView ops={sub.diff} />
+                  <div className="label" style={{ color: 'var(--ink-faint)' }}>
+                    еталон: {references[t.id] || '—'}
+                  </div>
 
                   <div
                     className="row"
@@ -118,10 +132,7 @@ export default function KeyboardHost({ state, send, cfg }) {
                     <div className="row" style={{ gap: 10 }}>
                       <span className="label">Помилок</span>
                       <button onClick={() => setErrors(t.id, (sub.finalErrors ?? 0) - 1)}>−</button>
-                      <span
-                        className="mono"
-                        style={{ fontSize: 22, minWidth: 28, textAlign: 'center' }}
-                      >
+                      <span className="mono" style={{ fontSize: 22, minWidth: 28, textAlign: 'center' }}>
                         {sub.finalErrors ?? 0}
                       </span>
                       <button onClick={() => setErrors(t.id, (sub.finalErrors ?? 0) + 1)}>+</button>
@@ -158,7 +169,7 @@ export default function KeyboardHost({ state, send, cfg }) {
               : '—'}
           </span>
           <button className="primary" onClick={() => send('host_kb_award')}>
-  <Icon name="award" size={16} /> Нарахувати бали
+            <Icon name="award" size={16} /> Нарахувати бали
           </button>
         </div>
       </div>

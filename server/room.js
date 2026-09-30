@@ -53,7 +53,7 @@ export class Room {
       // Офлайн-івент: лише назва поточного (слова загадуються офлайн наперед).
       offline: { event: null },
       keyboard: {
-        reference: '',
+        references: Object.fromEntries(teams.map((t) => [t.id, ''])), // еталон на кожну команду
         started: false,
         startedAt: null,
         submissions: teams.map((t) => Room.blankSub(t.id)),
@@ -168,8 +168,8 @@ export class Room {
   }
 
   // ── Keyboard Battle ────────────────────────────────────────
-  kbSetReference(reference) {
-    this.state.keyboard.reference = String(reference || '');
+  kbSetReference(teamId, reference) {
+    this.state.keyboard.references[teamId] = String(reference || '');
     this.touch(true);
   }
 
@@ -177,16 +177,7 @@ export class Room {
     const kb = this.state.keyboard;
     kb.started = true;
     kb.startedAt = Date.now();
-    kb.submissions = this.state.teams.map((t) => ({
-      teamId: t.id,
-      submitted: false,
-      text: '',
-      finishedAt: null,
-      elapsedMs: 0,
-      errors: 0,
-      finalErrors: 0,
-      diff: [],
-    }));
+    kb.submissions = this.state.teams.map((t) => Room.blankSub(t.id));
     this.touch(true);
   }
 
@@ -199,7 +190,8 @@ export class Room {
     sub.text = String(text || '');
     sub.finishedAt = Date.now();
     sub.elapsedMs = sub.finishedAt - kb.startedAt;
-    const { errors, ops } = diffWords(kb.reference, sub.text);
+    const ref = kb.references[teamId] || '';
+    const { errors, ops } = diffWords(ref, sub.text);
     sub.errors = errors;
     sub.diff = ops;
     sub.finalErrors = errors; // дефолт = авто, host може змінити
@@ -230,8 +222,11 @@ export class Room {
   }
 
   kbReset() {
-    this.state.keyboard = Room.initialState().keyboard;
-    // зберегти вже заведений еталон? — ні, повний ресет раунду
+    const kb = this.state.keyboard;
+    // еталони лишаємо (це налаштування), скидаємо лише раунд
+    kb.started = false;
+    kb.startedAt = null;
+    kb.submissions = this.state.teams.map((t) => Room.blankSub(t.id));
     this.touch(true);
   }
 
