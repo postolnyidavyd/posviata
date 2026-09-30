@@ -27,8 +27,12 @@ export class Room {
   // teamCount: 2 або 3 (за замовчуванням — скільки заведено в config)
   static initialState(teamCount = config.teams.length) {
     const n = Math.max(2, Math.min(config.teams.length, teamCount));
-    const teams = config.teams.slice(0, n).map((t) => ({
-      id: t.id,
+    // Для 2 команд — Mac + Windows (без Linux); для 3 — усі.
+    // id завжди 0..n-1 (щоб URL team=, колесо й табло лишались коректні).
+    const comp =
+      n === 2 ? [config.teams[0], config.teams[2]] : config.teams.slice(0, n);
+    const teams = comp.map((t, i) => ({
+      id: i,
       name: t.name,
       os: t.os,
       score: 0,

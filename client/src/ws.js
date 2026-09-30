@@ -9,12 +9,8 @@ export function roleFromPath() {
 }
 
 function wsBase() {
-  // Прод (фронт на Vercel): бекенд Railway задається через VITE_WS_URL,
-  // напр. wss://your-app.up.railway.app
-  const configured = import.meta.env.VITE_WS_URL;
-  if (configured) return String(configured).replace(/\/+$/, '');
+  // Дев: бек на :3001. Прод: той самий origin (сервер віддає і фронт, і WS).
   if (import.meta.env.DEV) return `ws://${location.hostname}:3001`;
-  // фолбек: той самий origin (якщо фронт і бек на одному хості)
   const proto = location.protocol === 'https:' ? 'wss' : 'ws';
   return `${proto}://${location.host}`;
 }
