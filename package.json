@@ -1,0 +1,19 @@
+{
+  "name": "posvyata-pult",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Пульт ведучого «Посвята в ІТшника»",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev:server": "node --watch server/index.js",
+    "dev:client": "npm --prefix client run dev",
+    "build": "npm --prefix client install && npm --prefix client run build"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

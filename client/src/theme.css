@@ -1,0 +1,422 @@
+/* ═══════════════════════════════════════════════════════════════
+   ДИЗАЙН-СИСТЕМА · Пульт «Посвята в ІТшника» · ФІТ Студрада
+   Режим: OPERATE (робочий інструмент). Бренд живе в точних деталях:
+   електрик-фіолетовий = дія/вибір/наlive, важкий Montserrat для даних,
+   Fira Code для UI, одна система глибини, намальовані іконки.
+   Усі токени — тут.
+   ═══════════════════════════════════════════════════════════════ */
+:root {
+  /* Поверхні (світла база, як на афішах) */
+  --bg: #eceaf2; /* ground */
+  --surface: #ffffff; /* картки */
+  --panel: #f5f3fb; /* другий нейтральний шар (тулбари, вкладені) */
+  --line: #e4e1ef; /* хвилинна лінія 1px */
+
+  /* Чорнило */
+  --ink: #17141f;
+  --ink-2: #565167;
+  --ink-3: #8b8699;
+
+  /* Акцент = функція (дія / вибір / наlive) */
+  --accent: #7341ee;
+  --accent-press: #5b28d6;
+  --accent-soft: color-mix(in srgb, var(--accent) 12%, transparent);
+  --accent-line: color-mix(in srgb, var(--accent) 32%, transparent);
+  --on-accent: #ffffff;
+
+  /* Семантика */
+  --good: #1e9e57;
+  --bad: #e0483d;
+  --warn: #d98a1f;
+
+  /* Ідентичність команд — палітра «Свіжа» */
+  --mac: #10b981; /* смарагд */
+  --linux: #f59e0b; /* бурштин */
+  --windows: #0ea5e9; /* небесний */
+
+  /* Одна система глибини: тінь (offset + blur), БЕЗ рамки на картці */
+  --shadow-1: 0 1px 2px rgba(23, 20, 31, 0.06), 0 2px 8px rgba(23, 20, 31, 0.05);
+  --shadow-2: 0 2px 4px rgba(23, 20, 31, 0.06), 0 10px 28px rgba(23, 20, 31, 0.09);
+  --shadow-accent: 0 6px 18px color-mix(in srgb, var(--accent) 28%, transparent);
+
+  /* Шрифти */
+  --font-display: "Montserrat", system-ui, sans-serif; /* Black — числа/заголовки */
+  --font-mono: "Fira Code", ui-monospace, "Cascadia Code", Consolas, monospace; /* UI */
+
+  /* Радіуси / ритм */
+  --r-card: 18px;
+  --r-ctrl: 11px;
+  --r-pill: 999px;
+  --space: 16px;
+
+  /* Аліаси сумісності (старі назви -> нові) */
+  --ink-soft: var(--ink-2);
+  --ink-faint: var(--ink-3);
+  --border: var(--line);
+  --surface-2: var(--panel);
+  --accent-2: color-mix(in srgb, var(--accent) 55%, #ffffff);
+  --font-ui: var(--font-mono);
+}
+
+* {
+  box-sizing: border-box;
+}
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-weight: 450;
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ── Типографіка ─────────────────────────────────────────────── */
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1.02;
+}
+h1 {
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+.display {
+  font-family: var(--font-display);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+  color: var(--ink-3);
+}
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.codetag {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: var(--accent);
+}
+.codetag::before {
+  content: "[";
+  opacity: 0.55;
+}
+.codetag::after {
+  content: "]";
+  opacity: 0.55;
+}
+
+/* ── Каркас ──────────────────────────────────────────────────── */
+.wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 22px 20px 64px;
+}
+.row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Одна глибина: картка = тінь, БЕЗ рамки */
+.card {
+  background: var(--surface);
+  border-radius: var(--r-card);
+  padding: var(--space);
+  box-shadow: var(--shadow-1);
+}
+.panel {
+  background: var(--panel);
+  border-radius: var(--r-card);
+  padding: var(--space);
+}
+
+/* ── Кнопки (консистентні, радіус контролу; пігулка лише для чипсів) ── */
+button {
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 14px;
+  padding: 9px 15px;
+  border-radius: var(--r-ctrl);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.14s ease, border-color 0.14s ease, color 0.14s ease,
+    box-shadow 0.14s ease, transform 0.06s ease;
+}
+button:hover {
+  border-color: var(--accent-line);
+  color: var(--accent);
+}
+button:active {
+  transform: translateY(1px);
+}
+button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+  box-shadow: var(--shadow-accent);
+}
+button.primary:hover {
+  background: var(--accent-press);
+  border-color: var(--accent-press);
+  color: var(--on-accent);
+}
+button.ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--ink-2);
+}
+button.ghost:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+button.danger {
+  color: var(--bad);
+  border-color: transparent;
+  background: transparent;
+}
+button.danger:hover {
+  background: color-mix(in srgb, var(--bad) 10%, transparent);
+  border-color: color-mix(in srgb, var(--bad) 30%, transparent);
+}
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+.icon-btn {
+  padding: 8px;
+  width: 38px;
+  height: 38px;
+  justify-content: center;
+}
+
+/* ── Поля ────────────────────────────────────────────────────── */
+input,
+textarea {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  padding: 11px 13px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-ctrl);
+  background: var(--surface);
+  color: var(--ink);
+  width: 100%;
+}
+input::placeholder,
+textarea::placeholder {
+  color: var(--ink-3);
+}
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* ── Сегментований перемикач режимів ─────────────────────────── */
+.segmented {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--panel);
+  border-radius: var(--r-ctrl);
+  flex-wrap: wrap;
+}
+.segmented button {
+  border: none;
+  background: transparent;
+  color: var(--ink-2);
+  box-shadow: none;
+  border-radius: 8px;
+}
+.segmented button:hover {
+  background: var(--surface);
+  color: var(--ink);
+}
+.segmented button[aria-selected="true"] {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+/* ── Чипси / стани ───────────────────────────────────────────── */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 11px;
+  border-radius: var(--r-pill);
+  background: var(--panel);
+  color: var(--ink-2);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+}
+.pill.live {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: inline-block;
+  box-shadow: 0 0 0 0 var(--accent-line);
+  animation: pulse 1.6s ease-out infinite;
+}
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 var(--accent-line);
+  }
+  100% {
+    box-shadow: 0 0 0 8px transparent;
+  }
+}
+
+/* ── Індикатор зʼєднання ─────────────────────────────────────── */
+.conn {
+  position: fixed;
+  top: 12px;
+  right: 14px;
+  z-index: 60;
+}
+
+/* ── Ідентичність команд (тонко) ─────────────────────────────── */
+.team-mac {
+  --team: var(--mac);
+}
+.team-linux {
+  --team: var(--linux);
+}
+.team-windows {
+  --team: var(--windows);
+}
+
+/* ── Дифф Keyboard (крапкова геометрія, не «скетч») ──────────── */
+.diff {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  line-height: 1.9;
+  word-break: break-word;
+}
+.diff .w {
+  padding: 1px 5px;
+  border-radius: 6px;
+  margin-right: 2px;
+}
+.w-ok {
+  color: var(--ink);
+}
+.w-wrong {
+  background: color-mix(in srgb, var(--bad) 14%, transparent);
+  color: var(--bad);
+  font-weight: 700;
+}
+.w-extra {
+  background: color-mix(in srgb, var(--warn) 18%, transparent);
+  color: var(--warn);
+  text-decoration: line-through;
+}
+.w-miss {
+  color: var(--bad);
+  border: 1px dashed color-mix(in srgb, var(--bad) 55%, transparent);
+  font-style: italic;
+}
+.w-wrong .exp {
+  opacity: 0.7;
+  font-weight: 400;
+  font-size: 12px;
+}
+
+/* ── Колесо (чиста геометрія) ────────────────────────────────── */
+.wheel {
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  box-shadow: var(--shadow-2);
+  /* фон-конік задається інлайн у WheelStage (адаптується під 2/3 команди) */
+  position: relative;
+  transition: transform 4.8s cubic-bezier(0.12, 0.72, 0.12, 1);
+}
+.wheel.landed {
+  animation: wheelglow 1.2s ease-in-out infinite alternate;
+}
+@keyframes wheelglow {
+  from {
+    box-shadow: var(--shadow-2), 0 0 0 4px transparent;
+  }
+  to {
+    box-shadow: var(--shadow-2), 0 0 0 5px var(--accent-line);
+  }
+}
+.wheel-pointer {
+  width: 0;
+  height: 0;
+  border-left: 13px solid transparent;
+  border-right: 13px solid transparent;
+  border-top: 22px solid var(--accent);
+  margin: 0 auto -6px;
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 2px 3px rgba(23, 20, 31, 0.25));
+}
+.wheel-pop {
+  animation: pop 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes pop {
+  from {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
